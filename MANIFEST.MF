@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+MIDlet-Name: AoOni
+MIDlet-Version: 1.0.0
+MIDlet-Vendor: IndiePort
+MIDlet-1: AoOni, , AoOniMIDlet
+MicroEdition-Profile: MIDP-2.0
+MicroEdition-Configuration: CLDC-1.1
