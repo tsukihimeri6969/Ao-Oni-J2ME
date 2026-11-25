@@ -8,7 +8,7 @@ I didn't try to run Ruby/RGSS on a feature phone (that would be insane). Instead
 
 ### To build it
 
-- **JDK 8** (newer ones break the WTK preverifier, trust me)
+- **JDK 8**
 - **Sun Java Wireless Toolkit (WTK) 2.5.2**
 - **ProGuard** 5.x or 6.x, dropped at `tools\proguard.jar`. Technically optional, but I strongly recommend it. WTK 2.5.2's `preverify.exe` rejects JDK 8 bytecode pretty often, and ProGuard's `-microedition` flag shrinks the JAR *and* preverifies it for CLDC 1.1 in one go.
 - **Python 3.x**
