@@ -1,6 +1,6 @@
 # Ao Oni J2ME
 
-A from-scratch native **Java ME (CLDC 1.1 / MIDP 2.0)** port of *Ao Oni*, plus a RPG Maker XP data compiler to go with it. The goal was to get it running on a **2007 Nokia 6300** (Series 40 3rd Edition FP2), which is a lot harder than it sounds.
+A from-scratch native Java ME (CLDC 1.1 / MIDP 2.0) port of *Ao Oni*, plus a RPG Maker XP data compiler to go with it
 
 I didn't try to run Ruby/RGSS on a feature phone (that would be insane). Instead, the build tools take the original game's `.rxdata` maps, events and graphics and compile them into a couple of small big-endian binary files (`rooms.pak` and `meta.bin`) plus pruned 16x16 indexed PNGs. A tiny Java ME engine then just reads those and runs the game.
 
@@ -11,17 +11,9 @@ I didn't try to run Ruby/RGSS on a feature phone (that would be insane). Instead
 - **JDK 8** (newer ones break the WTK preverifier, trust me)
 - **Sun Java Wireless Toolkit (WTK) 2.5.2**
 - **ProGuard** 5.x or 6.x, dropped at `tools\proguard.jar`. Technically optional, but I strongly recommend it. WTK 2.5.2's `preverify.exe` rejects JDK 8 bytecode pretty often, and ProGuard's `-microedition` flag shrinks the JAR *and* preverifies it for CLDC 1.1 in one go.
-- **Python 3.x** with these packages:
-  ```text
-  rubymarshal
-  pillow
-  ```
-  Save that as `requirements.txt` and run:
-  ```powershell
-  pip install -r requirements.txt
-  ```
-  or just `pip install rubymarshal pillow` if you can't be bothered.
-- The original *Ao Oni* **`Data/`** and **`Graphics/`** folders. If they're still inside `Game.rgssad`, unpack them first.
+- **Python 3.x**
+ `pip install rubymarshal pillow` if you can't be bothered
+- The original *Ao Oni* **`Data/`** and **`Graphics/`** folders
 - The **RPG Maker XP RTP** `Graphics/` folder, but only if the game pulls base tilesets/autotiles from it.
 
 > **Heads up:** none of the original game assets (`Data/`, `Graphics/`, `Audio/`) or RTP files are in this repo. You have to supply your own.
@@ -42,17 +34,6 @@ I didn't try to run Ruby/RGSS on a feature phone (that would be insane). Instead
 | Max JAR size | 1 MB | One indexed `rooms.pak` (~57 KB deflated) + quantized indexed PNGs, ~710 KB total |
 | Java heap | 2 MB | One room and one tileset loaded at a time (128 KB peak for tilesets), a capped 16-sheet sprite cache, and no allocations in the main loops |
 
-## What it can do
-
-- **Event VM (`EventVM.java`)**: runs 34 binary opcodes (`0x00` to `0x21`). That covers dialogue, choices, switches, self-switches, variables, items, transfers, move routes, timers, pictures, screen effects, number inputs, button inputs, character naming and common events. It also has a preallocated RPN stack evaluator for the compiled Ruby coordinate/flag conditions.
-- **Room archive (`rooms.pak`)**: all 76 rooms (`AOM2`) plus `CommonEvents` (`AOC1`), with baked 4-bit directional collision masks and split-point overhead tile priorities.
-- **Asset baker (`bake_assets.py`)**: scans every map and event, throws out unused tiles, stitches the RMXP 48-pattern autotiles, shrinks character sheets, pulls out the `\f[...]` face portraits, builds a full-screen 240x320 Game Over image, and writes `meta.bin` (`AOG3`).
-- **Grid movement**: uses a live press/release D-pad stack instead of `getKeyStates()` (which drifts and feels awful). Steps at 4 px/frame, so 200ms per tile.
-- **Dialogue + face portraits**: strips RMXP/AMS escape tags, expands nested `\N[n]`, `\V[n]` and `\name[...]`, handles `\C[n]` colors, and draws portraits in a square box docked at the top-left of the textbox.
-- **Naming screen**: supports RMXP `303` name input (secret name easter eggs included) and `320` scripted actor renames.
-- **Inventory `USE` and `MERGE`**: runs the native item common events for stuff in the world (Lighter, Screwdrivers, Plate Shard, Lightbulb, etc.) and lets you combine items right in the bag (Soap + Handkerchief, Disc + Metal Stick, Lighter + Lighter Fluid, Vinegar + Red Key, Screwdrivers).
-- **Chase AI with Oni variants**: grid BFS pathfinding around furniture and doorways, no allocations. Each oni has its own pursuit style: Classic Ao Oni, Fuwatty (dashes in a straight line), Mika/Takuro Oni, Takeshi Oni, Squatto Oni, Jellyfish Oni, Hunchback Oni and Blob/Sludge Oni.
-- **RMS saves**: uses `RecordStore` (`AOS3`) to store map, position, direction, play time, custom actor names, party order, switches, self-switches, variables and inventory.
 
 ## Controls
 
@@ -150,11 +131,6 @@ I removed all the on-screen control hints to keep the UI clean, so here's the fu
    ```
 
 The finished package ends up in `dist\AoOni.jar` and `dist\AoOni.jad`. For testing that's closer to a real Nokia 6300, run `dist\AoOni.jar` in KEmulator or FreeJ2ME before you copy it to a phone over USB, Bluetooth or microSD.
-
-## Known issues / TODO
-
-- [ ] **Audio (JSR-135 / MMAPI)**: `GameScreen.handleAudio` is just a stub for now. The plan is MIDI for BGM and low-bitrate mono WAV/AMR for chase music and SFX, keeping in mind S40 only has a single audio channel.
-- [ ] **Bitmap font**: right now it uses the phone's system `Font.SIZE_SMALL`. English builds look fine, but Japanese needs firmware with CJK glyphs or a baked bitmap font.
 
 ## Credits & disclaimer
 
